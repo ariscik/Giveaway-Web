@@ -1,5 +1,6 @@
 # 🎁 Giveaway System
 – FiveM Discord Join Required
+
 This is a simple example of a giveaway system similar to fivegift.gg, where users can participate in giveaways that require them to join a specific Discord server.
 
 ⚠️ Disclaimer:
