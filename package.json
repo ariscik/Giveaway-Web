@@ -1,0 +1,24 @@
+{
+  "name": "arislesnar-giveaway",
+  "version": "1.0.0",
+  "description": "Aris Lesnar tarafından yapılmış sunucu kontrolü olan çekiliş sitesi. ",
+  "main": "aris.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "autoprefixer": "^10.4.21",
+    "axios": "^1.10.0",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-session": "^1.18.1",
+    "multer": "^2.0.1",
+    "postcss": "^8.5.6"
+  },
+  "devDependencies": {
+    "tailwindcss": "^4.1.11"
+  }
+}

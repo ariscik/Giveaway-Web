@@ -1,0 +1,14 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom mb-4" style="box-shadow:0 2px 8px #0002;">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="/">NAR <span style="color:#3b82f6">GIFT</span></a>
+    <div class="ms-auto">
+      <% if (user) { %>
+        <span class="me-2">Hoşgeldin, <%= user.username %></span>
+        <a href="/profile" class="btn btn-modern btn-sm me-2">Profil</a>
+        <a href="/logout" class="btn btn-outline-light btn-sm">Çıkış</a>
+      <% } else { %>
+        <a href="/auth/discord" class="btn btn-modern">Discord ile Giriş</a>
+      <% } %>
+    </div>
+  </div>
+</nav> 

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= giveaway.title %> | <%= siteName %></title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/style.css" rel="stylesheet">
+</head>
+<body class="bg-dark text-light">
+  <%- include('../partials/navbar', { user: user }) %>
+  <div class="container py-4">
+    <div class="row">
+      <div class="col-lg-7 mb-4">
+        <div class="card card-modern border-0">
+          <% if (giveaway.banner) { %>
+            <img src="<%= giveaway.banner %>" class="card-img-top" style="height:220px;object-fit:cover;">
+          <% } %>
+          <div class="card-body">
+            <h2 class="card-title mb-2"><%= giveaway.title %></h2>
+            <p class="mb-2"><%= giveaway.description %></p>
+            <div class="mb-2">
+              <span class="badge badge-modern">Kazanan: <%= giveaway.winnerCount %></span>
+              <span class="badge badge-modern">Başlangıç: <%= giveaway.start %></span>
+              <span class="badge badge-modern">Bitiş: <%= giveaway.end %></span>
+            </div>
+            <div class="mb-2">
+              <strong>Ödüller:</strong>
+              <ul class="mb-0">
+                <% giveaway.prizes.forEach(p => { %>
+                  <li><%= p.count %>x <%= p.name %></li>
+                <% }) %>
+              </ul>
+            </div>
+            <div class="mb-2">
+              <strong>Zorunlu Sunucu Davetleri:</strong>
+              <ul class="mb-0" id="guild-check-list">
+                <% giveaway.invites.forEach(inv => { %>
+                  <% if (inv && inv.invite) { %>
+                    <li class="d-flex align-items-center mb-1">
+                      <a href="https://<%= inv.invite.startsWith('discord.gg') ? inv.invite : 'discord.gg/' + inv.invite %>" target="_blank" class="link-light me-2"><%= inv.invite %></a>
+                      <% if (user) { %>
+                        <button class="btn btn-sm btn-outline-info guild-check-btn" data-guild="<%= inv.guildId %>">Kontrol Et</button>
+                      <% } %>
+                    </li>
+                  <% } %>
+                <% }) %>
+              </ul>
+            </div>
+            <div id="toast-container" style="position:fixed;top:20px;right:20px;z-index:9999;"></div>
+            <% if (user) { %>
+              <% if (!canJoinTime) { %>
+                <% if (now < start) { %>
+                  <div class="alert alert-info">Çekiliş henüz başlamadı. Başlangıç: <%= giveaway.start %></div>
+                <% } else if (now > end || giveaway.status !== 'active') { %>
+                  <div class="alert alert-warning">Çekiliş sona erdi. Katılım kapalı.</div>
+                <% } %>
+              <% } else if (joined) { %>
+                <div class="alert alert-success">Çekilişe katıldınız!</div>
+              <% } else if (canJoin) { %>
+                <form action="/giveaway/<%= giveaway.id %>/join" method="POST">
+                  <button type="submit" class="btn btn-modern">Katıl (Sunucu Doğrulama)</button>
+                </form>
+              <% } else { %>
+                <div class="alert alert-warning">Katılmak için gerekli tüm sunucularda olmalısınız.</div>
+              <% } %>
+            <% } else { %>
+              <a href="/auth/discord" class="btn btn-danger">Discord ile Giriş Yap</a>
+            <% } %>
+            <% if (user && giveaway.creator === user.id && giveaway.status === 'active') { %>
+              <form action="/giveaway/<%= giveaway.id %>/end" method="POST" class="mt-3">
+                <button type="submit" class="btn btn-modern w-100">Çekilişi Bitir ve Kazananları Açıkla</button>
+              </form>
+            <% } %>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="card bg-secondary border-0 mb-4">
+          <div class="card-body">
+            <h5 class="mb-3">Katılımcılar (<%= giveaway.entries.length %>)</h5>
+            <ul class="list-group list-group-flush">
+              <% giveaway.entries.forEach(e => { %>
+                <li class="list-group-item bg-secondary text-light"><%= e.username %></li>
+              <% }) %>
+            </ul>
+          </div>
+        </div>
+        <% if (giveaway.winners && giveaway.winners.length > 0) { %>
+        <div class="card bg-success border-0">
+          <div class="card-body">
+            <h5 class="mb-2">Kazananlar</h5>
+            <ul class="mb-0">
+              <% giveaway.winners.forEach(w => { %>
+                <li><strong><%= w.username %></strong> - <%= w.prize %></li>
+              <% }) %>
+            </ul>
+          </div>
+        </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+  <footer class="text-center text-secondary py-4 mt-5">
+    &copy; <%= new Date().getFullYear() %> Nar Gift
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.guild-check-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const guildId = this.getAttribute('data-guild');
+          const userGuilds = <%- JSON.stringify(userGuilds || []) %>;
+          if (guildId && userGuilds.includes(guildId)) {
+            showToast('Sunucudasınız!', 'success');
+          } else {
+            showToast('Bu sunucuda değilsiniz!', 'danger');
+          }
+        });
+      });
+    });
+    function showToast(msg, type) {
+      const toast = document.createElement('div');
+      toast.className = `toast align-items-center text-bg-${type} border-0 show mb-2`;
+      toast.role = 'alert';
+      toast.innerHTML = `<div class='d-flex'><div class='toast-body'>${msg}</div></div>`;
+      document.getElementById('toast-container').appendChild(toast);
+      setTimeout(() => toast.remove(), 2000);
+    }
+  </script>
+</body>
+</html> 
