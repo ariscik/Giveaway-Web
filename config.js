@@ -1,7 +1,7 @@
 module.exports = {
   siteName: "NarGift",
   siteUrl: "http://localhost:3000",
-  sessionSecret: "fivegift_secret_key",
+  sessionSecret: "nargift_secret_key",
   discord: {
     clientId: "",
     clientSecret: "",
